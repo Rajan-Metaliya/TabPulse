@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Status Framework",
+  "version": "1.0.0",
+  "description": "Automatically rewrites browser tab titles for developer productivity tools (Jira, Bitbucket) with status indicators.",
+  "permissions": [
+    "storage"
+  ],
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.atlassian.net/browse/*",
+        "https://bitbucket.org/*/pull-requests/*",
+        "https://*.visualstudio.com/*/_git/*/pullrequest/*",
+        "https://dev.azure.com/*/_git/*/pullrequest/*",
+        "<all_urls>"
+      ],
+      "js": [
+        "src/utils.js",
+        "src/statusMap.js",
+        "src/registry.js",
+        "src/titleManager.js",
+        "src/badge.js",
+        "src/platforms/jira.js",
+        "src/platforms/bitbucket.js",
+        "src/platforms/azure.js",
+        "src/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "https://*.atlassian.net/*",
+    "https://bitbucket.org/*",
+    "https://*.visualstudio.com/*",
+    "https://dev.azure.com/*",
+    "<all_urls>"
+  ]
+}

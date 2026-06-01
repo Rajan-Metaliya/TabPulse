@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Status Framework - Options</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #1a1a1a;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #1a1a1a;
+    }
+
+    .setting-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      color: #555;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #4285F4;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background: #4285F4;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #3367D6;
+    }
+
+    .btn-secondary {
+      background: #f1f1f1;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .status-message {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status-message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .examples {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .examples h3 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .examples code {
+      display: block;
+      padding: 8px;
+      background: white;
+      border-radius: 3px;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #d63384;
+    }
+
+    .status-config-editor {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .category-section {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .category-section h3 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .category-section textarea {
+      min-height: 150px;
+      font-size: 12px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚙️ Tab Status Framework Settings</h1>
+    <p class="subtitle">Configure URL patterns and display options</p>
+
+    <div id="status" class="status-message"></div>
+
+    <div class="section">
+      <h2>Display Options</h2>
+
+      <div class="setting-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="showBadge" checked>
+          <label for="showBadge">Show floating status badge on page</label>
+        </div>
+        <p class="help-text">Display a small badge in the corner showing status details</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Status Color Mappings</h2>
+
+      <div class="setting-group">
+        <label>Configure how statuses are categorized and displayed</label>
+        <p class="help-text">
+          Map your custom workflow statuses to color categories. Each status text (case-insensitive) is matched against keywords.
+        </p>
+
+        <div class="status-config-editor">
+          <div class="category-section" data-category="todo">
+            <h3>⚪ To Do (Gray)</h3>
+            <textarea class="status-keywords" placeholder="Enter status keywords, one per line&#10;draft&#10;hold&#10;in scoping"></textarea>
+          </div>
+
+          <div class="category-section" data-category="inProgress">
+            <h3>🔵 In Progress (Blue)</h3>
+            <textarea class="status-keywords" placeholder="Enter status keywords, one per line&#10;in development&#10;blocked&#10;qa in progress"></textarea>
+          </div>
+
+          <div class="category-section" data-category="done">
+            <h3>🟢 Done (Green)</h3>
+            <textarea class="status-keywords" placeholder="Enter status keywords, one per line&#10;done&#10;qa completed&#10;uat complete"></textarea>
+          </div>
+        </div>
+
+        <div class="examples">
+          <h3>💡 Pro Tip:</h3>
+          <p style="font-size: 12px; margin: 5px 0;">Keywords are matched as substrings (case-insensitive). For example, "qa" will match "QA IN PROGRESS", "QA COMPLETED", etc.</p>
+        </div>
+      </div>
+
+      <div class="setting-group" style="margin-top: 20px;">
+        <label>Import/Export Configuration</label>
+        <div class="button-group" style="margin-top: 10px;">
+          <button id="exportConfig" class="btn-secondary">📥 Export Config</button>
+          <button id="importConfig" class="btn-secondary">📤 Import Config</button>
+          <input type="file" id="importFile" accept=".json" style="display: none;">
+        </div>
+        <p class="help-text">
+          Export your configuration to share with teammates or use across projects. Import a saved configuration file.
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Custom URL Patterns</h2>
+
+      <div class="setting-group">
+        <label for="customPatterns">Additional URL Patterns (one per line)</label>
+        <textarea id="customPatterns" placeholder="https://custom-jira.company.com/browse/*&#10;https://github.company.com/*/issues/*"></textarea>
+        <p class="help-text">
+          Add your company-specific URLs. Use * as wildcard. The extension will attempt to detect Jira/Bitbucket-like patterns automatically.
+        </p>
+
+        <div class="examples">
+          <h3>Examples:</h3>
+          <code>https://your-company.atlassian.net/browse/*</code>
+          <code>https://bitbucket.your-org.com/*/pull-requests/*</code>
+          <code>https://jira.company.com/browse/*</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="save" class="btn-primary">Save Settings</button>
+      <button id="reset" class="btn-secondary">Reset to Defaults</button>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
