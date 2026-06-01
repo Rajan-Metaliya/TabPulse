@@ -1,0 +1,1 @@
+A plugin-based Manifest V3 Chrome extension that rewrites browser tab titles for Jira, Bitbucket, and other dev tools into a scannable [ICON] ID | STATUS format.
