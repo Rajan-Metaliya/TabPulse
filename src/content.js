@@ -25,6 +25,62 @@
   let settings = { showBadge: true, customPatterns: [] };
 
   /**
+   * Detect whether a status dropdown / select menu is currently open.
+   *
+   * When the user clicks the status field to change it, the platform renders a
+   * popup listbox/menu containing ALL the available statuses. If we read the
+   * status element while that's open, the extracted text becomes the
+   * concatenation of every option, which then pollutes the tab title and the
+   * badge popup. While a dropdown is open we skip updates and keep the last
+   * known good status.
+   *
+   * @returns {boolean} True if a status picker appears to be open
+   */
+  function isStatusDropdownOpen() {
+    try {
+      // An expanded status control (Jira/Azure/Bitbucket all use aria-expanded
+      // on the trigger button while their picker is open).
+      const expanded = document.querySelector(
+        '[aria-haspopup][aria-expanded="true"], [role="combobox"][aria-expanded="true"]'
+      );
+      if (expanded) return true;
+
+      // A visible popup listbox/menu — these only exist while a picker is open.
+      const popups = document.querySelectorAll(
+        '[role="listbox"], [role="menu"], [data-testid*="popup"], [class*="droplist"]'
+      );
+      for (const popup of popups) {
+        // Ignore hidden/detached popups.
+        if (popup.offsetParent === null && popup.getClientRects().length === 0) {
+          continue;
+        }
+        // Only treat it as a status picker if it actually lists statuses.
+        if (popup.querySelector('[role="option"], [role="menuitem"], [role="menuitemradio"]')) {
+          return true;
+        }
+      }
+    } catch (e) {
+      console.warn('[TabStatus] Error checking dropdown state:', e);
+    }
+    return false;
+  }
+
+  /**
+   * Heuristic: does this status text look like a list of options rather than a
+   * single status? A real status is short and single-line; a captured dropdown
+   * is long and/or has multiple lines.
+   *
+   * @param {string} status
+   * @returns {boolean}
+   */
+  function looksLikeOptionList(status) {
+    if (!status) return false;
+    if (/[\n\r]/.test(status)) return true;        // multi-line
+    if (status.length > 40) return true;           // far longer than any status
+    return false;
+  }
+
+  /**
    * Format title data into the display string.
    *
    * @param {Object} titleData - From plugin's getTitleData()
@@ -47,8 +103,10 @@
     // Build title parts
     let titleParts = [`${displayIcon} ${displayId}`];
 
-    // Add status if available
-    if (status && status.trim()) {
+    // Add status if available. Guard against a status that's actually the
+    // concatenation of a dropdown's worth of options (multi-line / very long):
+    // never put that into the tab title.
+    if (status && status.trim() && !looksLikeOptionList(status)) {
       titleParts.push(status);
     }
 
@@ -107,6 +165,16 @@
 
       console.log('[TabStatus] ✓ Using plugin:', plugin.name);
 
+      // If a status dropdown/menu is open, the status element's text is the
+      // whole list of options. Skip the update and keep the last good status;
+      // the observer will fire again (and we'll re-read the real value) once
+      // the picker closes.
+      if (isStatusDropdownOpen()) {
+        console.log('[TabStatus] Status dropdown open — skipping update');
+        currentPlugin = plugin;
+        return;
+      }
+
       // Get title data from plugin
       const titleData = await plugin.getTitleData(document, url);
 
@@ -124,9 +192,13 @@
         console.log('[TabStatus] ✓ Setting title:', formattedTitle);
         setTitle(formattedTitle);
 
-        // Show badge if enabled
+        // Show badge if enabled. Strip an option-list status so the badge
+        // popup never displays the whole dropdown of statuses.
         if (settings.showBadge && showBadge) {
-          showBadge(titleData);
+          const badgeData = looksLikeOptionList(titleData.status)
+            ? { ...titleData, status: '' }
+            : titleData;
+          showBadge(badgeData);
         }
       } else {
         console.error('[TabStatus] Failed to format title');

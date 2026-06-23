@@ -2,10 +2,23 @@
   "manifest_version": 3,
   "name": "Tab Status Framework",
   "version": "1.0.0",
-  "description": "Automatically rewrites browser tab titles for developer productivity tools (Jira, Bitbucket) with status indicators.",
+  "description": "Automatically rewrites browser tab titles for developer productivity tools (Jira, Bitbucket) with status indicators, and groups your tabs by topic.",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs",
+    "tabGroups"
   ],
+  "background": {
+    "service_worker": "src/grouping/background.js"
+  },
+  "action": {
+    "default_title": "TabPulse — open settings"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "options_page": "options.html",
   "content_scripts": [
     {

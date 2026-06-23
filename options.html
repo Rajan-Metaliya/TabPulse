@@ -204,6 +204,156 @@
       font-size: 12px;
       background: white;
     }
+
+    /* ── Tab Grouping section ─────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-header h3 {
+      font-size: 15px;
+      color: #1a1a1a;
+    }
+
+    #grp-groupBtn {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .grouping-subsection { margin-bottom: 24px; }
+    .grouping-subsection h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn-ghost {
+      background: transparent;
+      color: #666;
+      border: 1px solid #ddd;
+    }
+    .btn-ghost:hover { background: #f1f1f1; }
+    .btn-danger {
+      background: transparent;
+      color: #d63384;
+      border: 1px solid #f5c6cb;
+    }
+    .btn-danger:hover { background: #f8d7da; }
+    .btn-icon {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 6px;
+      color: #666;
+    }
+    .btn-icon:hover { color: #1a1a1a; }
+
+    .add-rule-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .add-rule-form input[type="text"],
+    .add-rule-form select,
+    .edit-form input[type="text"],
+    .edit-form select {
+      font-family: inherit;
+    }
+    .form-actions { display: flex; gap: 8px; }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      background: white;
+    }
+
+    #grp-rulesList,
+    #grp-suggestionsList,
+    #grp-activeGroupsList {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rule-item,
+    .group-item,
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .rule-item.editing { display: block; }
+    .edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rule-name, .group-name { font-weight: 500; }
+    .rule-keywords, .suggestion-pattern {
+      color: #666;
+      font-size: 13px;
+      font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .group-name { flex: 1; }
+    .tab-count {
+      color: #888;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .rule-actions { margin-left: auto; display: flex; gap: 4px; }
+    .catch-all-badge {
+      flex: 1;
+      color: #888;
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    .color-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    /* Chrome tab-group colors */
+    .color-grey   { background: #9aa0a6; }
+    .color-blue   { background: #1a73e8; }
+    .color-red    { background: #d93025; }
+    .color-yellow { background: #f9ab00; }
+    .color-green  { background: #1e8e3e; }
+    .color-pink   { background: #d01884; }
+    .color-purple { background: #9334e6; }
+    .color-cyan   { background: #007b83; }
+    .color-orange { background: #fa903e; }
+
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -289,6 +439,67 @@
       </div>
     </div>
 
+    <div class="section">
+      <h2>🗂️ Tab Grouping</h2>
+      <p class="help-text" style="margin-bottom: 16px;">
+        Group your open tabs by keyword rules. Matching tabs join an existing
+        group instead of creating a duplicate, and the active tab is never moved.
+      </p>
+
+      <button id="grp-groupBtn" class="btn-primary">⚡ Group Tabs Now</button>
+
+      <div class="setting-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="grp-autoGroup">
+          <label for="grp-autoGroup">Auto-group new tabs as they finish loading</label>
+        </div>
+        <p class="help-text">Only ungrouped tabs are grouped — tabs you place manually are left alone.</p>
+      </div>
+
+      <!-- Suggested rules from repeated tab patterns -->
+      <div id="grp-suggestionsSection" class="grouping-subsection hidden">
+        <h3>Suggested Rules</h3>
+        <p class="hint">These URL patterns appear in 2+ open tabs but have no rule yet.</p>
+        <div id="grp-suggestionsList"></div>
+      </div>
+
+      <!-- Active groups -->
+      <div id="grp-activeGroupsSection" class="grouping-subsection hidden">
+        <h3>Active Groups</h3>
+        <div id="grp-activeGroupsList"></div>
+      </div>
+
+      <!-- Rules -->
+      <div class="grouping-subsection">
+        <div class="section-header">
+          <h3>Rules</h3>
+          <button id="grp-addRuleBtn" class="btn-secondary btn-sm">+ Add Rule</button>
+        </div>
+
+        <div id="grp-addRuleForm" class="add-rule-form hidden">
+          <input id="grp-newRuleName" type="text" placeholder="Group name (e.g. Jira)">
+          <input id="grp-newRuleKeywords" type="text" placeholder="Keywords (e.g. atlassian.net, jira)">
+          <select id="grp-newRuleColor">
+            <option value="grey">Grey</option>
+            <option value="blue">Blue</option>
+            <option value="red">Red</option>
+            <option value="yellow">Yellow</option>
+            <option value="green">Green</option>
+            <option value="pink">Pink</option>
+            <option value="purple">Purple</option>
+            <option value="cyan">Cyan</option>
+            <option value="orange">Orange</option>
+          </select>
+          <div class="form-actions">
+            <button id="grp-saveRuleBtn" class="btn-primary btn-sm">Save</button>
+            <button id="grp-cancelRuleBtn" class="btn-ghost btn-sm">Cancel</button>
+          </div>
+        </div>
+
+        <div id="grp-rulesList"></div>
+      </div>
+    </div>
+
     <div class="button-group">
       <button id="save" class="btn-primary">Save Settings</button>
       <button id="reset" class="btn-secondary">Reset to Defaults</button>
@@ -296,5 +507,6 @@
   </div>
 
   <script src="options.js"></script>
+  <script src="src/grouping/options-grouping.js"></script>
 </body>
 </html>
